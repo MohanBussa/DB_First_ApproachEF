@@ -75,11 +75,8 @@ namespace Trial.Service
         }
         public Student AddOrEditStudent(Student student)
         {
-            /* var country = managementEntities.CountryCodes.FirstOrDefault(x=>x.Id==student.CountryCodeId);
-             */
-
-            var country = managementEntities.GetById(student.CountryCodeId);
-            var std = managementEntities.Students.Where(x => x.Id == student.Id).FirstOrDefault();
+            var country = contryEntities.GetById(student.CountryCodeId);
+            var std = managementEntities.GetById(student.Id);
             if (std == null)
             {
                 Student students = new Student();
@@ -105,7 +102,7 @@ namespace Trial.Service
                 std.MobileNo = country.Code+student.MobileNo;
                 std.StandardId = student.StandardId;
                 std.CountryCodeId = student.CountryCodeId;
-                managementEntities.SaveChanges();
+                managementEntities.Save();
                 return student;
             }
         }
@@ -113,9 +110,9 @@ namespace Trial.Service
         {
             if (student != null)
             {
-                Student obj = managementEntities.Students.Where(x => x.Id == student.Id).FirstOrDefault();
-                managementEntities.Students.Remove(obj);
-                managementEntities.SaveChanges();
+
+                managementEntities.Delete(student.Id);
+                managementEntities.Save();
                 return student;
             }
             return student;
@@ -123,7 +120,7 @@ namespace Trial.Service
         public Student GetByStudentId(int id)
         {
             Student stud = new Student();
-            Student data = managementEntities.Students.Where(x => x.Id == id).SingleOrDefault();
+            Student data = managementEntities.GetById(id);
             if (data != null)
             {
                 stud.Id = data.Id;
