@@ -1,0 +1,23 @@
+﻿
+@{
+    ViewBag.Title = "FileUpload";
+}
+
+<h2>FileUpload</h2>
+<font color="@TempData["red"]">@TempData["message"]</font>
+
+<font color="@TempData["red"]">@TempData["Msg"]</font>
+<div class="row">
+    <div class="col-md-10">
+        @using (Html.BeginForm("FileUpload", "Home", FormMethod.Post, new { @enctype = "multipart/form-data" }))
+        {
+            <input type="file" name="file" />
+            <br />
+            <input type="submit" value="Save" />
+            <a href="/Home/Download">Download Here</a>
+        }
+
+    </div>
+
+
+</div>

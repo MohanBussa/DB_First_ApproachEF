@@ -1,0 +1,195 @@
+﻿@model Trial.Standard
+
+<h2>Standard List</h2>
+<button class="btn btn-success" style="margin-bottom:10px" onclick=AddData()><i class="fa fa-plus"></i>Add New</button>
+
+<table id="StandardData" class="table table-bordered" border="1" style="width:100%">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th> 
+            <th>IsActive</th>
+            <th>Action</th>
+            <th>Action</th>
+    </thead>
+</table>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="//cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+
+
+@section scripts{
+
+    <script src="//cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="~/Scripts/notify.min.js"></script>
+
+
+
+
+    <script>
+
+         var dataTable;
+        $(document).ready(function () {
+            dataTable = $("#StandardData").DataTable({
+                        "ajax": {
+                            "url": "/Standard/GetStandardList",
+                            "type": "GET",
+                            "datatype": "json"
+                        },
+                        "columns": [
+                            { "data": "Id" },
+                            { "data": "Name" },
+                            {
+                                "data": "IsActive", "render": function (data) {
+                                    if (data) {
+                                        return "Yes";
+                                    }
+                                    else {
+                                        return "No";
+                                    }
+                                },
+                                "orderable": false,
+                                "width": "90px"
+                            },
+
+                            {
+                                "data": "Id", "render": function (data) {
+                                    return "<button class='btn btn-primary btn-sm'onclick =Edit(" + data + ")> Edit</button> "
+                                },
+                                "orderable": false,
+                                "width": "90px"
+                            },
+                            {
+                                "data": "Id", "render": function (data) {
+                                    return "<a class='btn btn-danger btn-sm'style='margin.left:5px' onclick =Delete(" + data + ")> Delete</s> "
+                                },
+                                "orderable": false,
+                                "width": "90px"
+                            }
+                        ]
+                    });
+                });
+        function AddData() {
+            $('input[Id="DeptId"]').val('');
+            $('input[Name="DeptName"]').val('');
+            $('.text-danger').empty();
+            $('#DeptName').val("");
+            $('#IsActive').prop('checked', false);
+            $("#PopupForm").modal('show');
+        }
+        function SubmitForm() {
+            var form = $('#FormId');
+            if (form.valid()) {
+                  var Data = $('#FormId').serialize();
+            if (Data == null) {
+               $("#FormId").validate();
+                }
+                debugger;
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Create", "Standard")',
+                data: Data,
+                success: function (data) {
+                    debugger;
+                    if (data.success) {
+                        dataTable.ajax.reload();
+
+                        $.notify(data.message, {
+                            globalPosition: "top center",
+                            ClassName: "success"
+                        });
+                            $("#PopupForm").modal('hide');
+                    }
+                    },
+                });
+            };
+
+            };
+
+        function Edit(id) {
+            $('.text-danger').empty();
+            $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("Edit", "Standard")/' + id,
+                    dataType: 'JSON',
+                success: function (data) {
+                    $('#DeptId').val(data.data.Id);
+                    $('#DeptName').val(data.data.Name);
+                    $('#IsActive').prop("checked", data.data.IsActive);
+                    $("#PopupForm").modal('show');
+                    }
+                })
+        }
+
+         function Delete(id) {
+            if (confirm("Are You Sure to Delete this Student Record?")) {
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("Delete", "Standard")/' + id,
+                    success: function (data) {
+                        if (data.success) {
+                            dataTable.ajax.reload();
+
+                            $.notify(data.message, {
+                                globalPosition: "top center",
+                                ClassName: "success"
+                            })
+                           $("#PopupForm").modal('hide');
+
+                        }
+                    }
+                })
+            }
+        }
+
+    </script>
+
+
+    <div id="PopupForm" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog model-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 class="modal-title" style="text-align:center">Add Standard</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="form-horizontal">
+
+                        <form id="FormId">
+
+                            @Html.HiddenFor(model => model.Id, new { id = "DeptId" })
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-3">
+                                    @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", id = "DeptName" } })
+                                    @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.IsActive, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-6">
+                                    @Html.CheckBoxFor(model => model.IsActive)
+
+                                </div>
+                            </div>
+
+
+                            <div class="form-group">
+                                <div class="col-md-offset-3 col-md-3">
+                                    <button type="button" value="Save" onclick="SubmitForm()" class="btn btn-primary" id="DeptSubmit"> Save </button>
+                                </div>
+                            </div>
+
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+

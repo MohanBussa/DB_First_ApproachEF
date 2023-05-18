@@ -1,0 +1,235 @@
+﻿@model Trial.Employee
+<h2>Employee List</h2>
+<button class="btn btn-success" style="margin-bottom:10px" onclick="AddData()"><i class="fa fa-plus"></i>Add New</button>
+
+<table id="Employeedata" class="table table-bordered" border="1" style="width:100%">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>EmpName</th>
+            <th>Salary</th>
+            <th>Email</th>
+            <th>DateOfJoining</th>
+            <th>Designation</th>
+            <th>City</th>
+            <th>DepartmentName</th>
+            <th>Action</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+</table>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script src="//code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<link href="//cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+
+@section scripts{
+
+    <script src="//cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="~/Scripts/notify.min.js"></script>
+
+    <script>
+
+        var Popup, dataTable;
+        $(document).ready(function () {
+            dataTable = $("#Employeedata").DataTable({
+                "ajax": {
+                    "url":  "/Employee/GetEmployeeList",
+                    "type": "GET",
+                    "datatype": "json"
+                },
+                "columns": [
+                    { "data": "Id" },
+                  { "data": "EmpName" },
+                    { "data": "Salary" },
+                    { "data": "Email" },
+                    {
+                        "data": "DateOfJoining",
+                        "render": function (data) {
+                            return moment(data).format('YYYY-MM-DD');
+                        }
+                    },
+                    { "data": "Designation" },
+                    { "data": "City" },
+                    { "data": "DepartmentName" },
+                     {
+                        "data": "Id", "render": function (data) {
+                            return "<button class='btn btn-primary btn-sm'onclick ='Edit("+ data +")'> Edit</button> "
+                        },
+                        "orderable": false,
+                        "width":"90px"
+                    },
+                      {
+                        "data": "Id", "render": function (data) {
+                            return "<a class='btn btn-danger btn-sm'style='margin.left:5px' onclick =Delete("+ data +")> Delete</s> "
+                        },
+                        "orderable": false,
+                        "width": "90px"
+                    }
+                ]
+            });
+        });
+
+        function AddData() {
+            $('.text-danger').empty();
+            $("#PopupForm input").val("");
+            $("#PopupForm").modal('show');
+        }
+        function SubmitForm() {
+            var form = $('#EmployeeFormId');
+            if (form.valid()) {
+                var Data = $('#EmployeeFormId').serialize();
+            if (Data == null) {
+                return false;
+            }
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Create", "Employee")',
+                data: Data,
+                success: function (data) {
+                    if (data.success) {
+                        dataTable.ajax.reload();
+
+                        $.notify(data.message, {
+                            globalPosition: "top center",
+                            ClassName: "success"
+                        })
+                        $("#PopupForm").modal('hide');
+                    }
+                    },
+                });
+        };
+            };
+
+
+        function Edit(id) {
+            $('.text-danger').empty();
+
+            $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("Edit", "Employee")/' + id,
+                dataType: 'JSON',
+                success: function (data) {
+                    $('#txtid').val(data.data.Id);
+                    $('#EmpName').val(data.data.EmpName);
+                    $('#Salary').val(data.data.Salary);
+                    $('#Email').val(data.data.Email);
+                    $('#DateOfJoining').val(moment(data.data.DateOfJoining).format('YYYY-MM-DD'));
+                    $('#Designation').val(data.data.Designation);
+                    $('#City').val(data.data.City);
+                    $('#DepartmentId').val(data.data.DepartmentId);
+                    $("#PopupForm").modal('show');
+                    }
+                })
+        }
+
+          function Delete(id) {
+            if (confirm("Are You Sure to Delete this Student Record?")) {
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("Delete", "Employee")/' + id,
+                    success: function (data) {
+                        if (data.success) {
+                            dataTable.ajax.reload();
+
+                            $.notify(data.message, {
+                                globalPosition: "top center",
+                                ClassName: "success"
+                            })
+                        }
+                    }
+                })
+            }
+        }
+
+    </script>
+    <div id="PopupForm" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog model-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h3 class="modal-title"style="text-align:center">Add Employee</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="form-horizontal">
+
+                        <form id="EmployeeFormId">
+
+                            @Html.HiddenFor(model => model.Id, new { id = "txtid" })
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.EmpName, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-6">
+                                    @Html.EditorFor(model => model.EmpName, new { htmlAttributes = new { @class = "form-control", id = "EmpName" } })
+                                    @Html.ValidationMessageFor(model => model.EmpName, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Salary, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-6">
+                                    @Html.EditorFor(model => model.Salary, new { htmlAttributes = new { @class = "form-control", id = "Salary" } })
+                                    @Html.ValidationMessageFor(model => model.Salary, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Email, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-6">
+                                    @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control", id = "Email" } })
+                                    @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.DateOfJoining, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-6">
+                                    @Html.EditorFor(model => model.DateOfJoining, new { htmlAttributes = new { @class = "form-control", id = "DateOfJoining" } })
+                                    @Html.ValidationMessageFor(model => model.DateOfJoining, null, new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Designation, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-6">
+                                    @Html.EditorFor(model => model.Designation, new { htmlAttributes = new { @class = "form-control", id = "Designation" } })
+                                    @Html.ValidationMessageFor(model => model.Designation, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.City, htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-6">
+                                    @Html.EditorFor(model => model.City, new { htmlAttributes = new { @class = "form-control", id = "City" } })
+                                    @Html.ValidationMessageFor(model => model.City, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.DepartmentId, "DepartmentName", htmlAttributes: new { @class = "control-label col-md-3" })
+                                <div class="col-md-6">
+
+                                    @Html.DropDownList("DepartmentId", null, htmlAttributes: new { @class = "form-control", id = "DepartmentId" })
+
+                                    @Html.ValidationMessageFor(model => model.DepartmentId, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="col-md-offset-3 col-md-3">
+                                    <button type="button" value="Save" onclick="SubmitForm()" class="btn btn-primary"> Save </button>
+                                </div>
+                            </div>
+
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+

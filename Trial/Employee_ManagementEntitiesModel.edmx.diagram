@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="8c33e328eb0c4b789d9dd41790c2880d" Name="Diagram1">
+        <EntityTypeShape EntityType="Employee_ManagementModel.Department" Width="1.5" PointX="0.75" PointY="5.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Employee_ManagementModel.Employee" Width="1.5" PointX="3" PointY="5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Employee_ManagementModel.Standard" Width="1.5" PointX="0.75" PointY="1.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="Employee_ManagementModel.User" Width="1.5" PointX="5.75" PointY="0.75" IsExpanded="true" />
+        <AssociationConnector Association="Employee_ManagementModel.FK_Employees" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="Employee_ManagementModel.CountryCode" Width="1.5" PointX="5.375" PointY="3.75" />
+        <EntityTypeShape EntityType="Employee_ManagementModel.Student" Width="1.5" PointX="3.125" PointY="1.25" />
+        <AssociationConnector Association="Employee_ManagementModel.FK_StudentConutryCode" />
+        <AssociationConnector Association="Employee_ManagementModel.FK_Students" />
+        </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

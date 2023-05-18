@@ -1,0 +1,181 @@
+﻿@Html.Partial("_Create")
+<h2>Student List</h2>
+<button class="btn btn-success" style="margin-bottom:10px" onclick="AddData()"><i class="fa fa-plus"></i>Add New</button>
+
+<table id="stddata" class="table table-bordered" border="1" style="width:100%">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Gender</th>
+            <th>Age</th>
+            <th>StandardName</th>
+            <th>MobileNo</th>
+            <th>Email</th>
+            <th>DateOfBirth</th>
+            <th>Action</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+</table>
+
+<script src="~/Scripts/jquery-3.6.4.js"></script>
+<script src="~/Scripts/jquery-ui-1.13.2.js"></script>
+<link href="//cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+<link href="~/Content/themes/base/jquery-ui.css" rel="stylesheet" />
+
+@section scripts{
+
+    <script src="//cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="~/Scripts/notify.min.js"></script>
+
+    <script>
+
+        var datatable;
+        $(document).ready(function () {
+            datatable =  $("#stddata").DataTable({
+              "ajax": {
+                    "url": '@Url.Action("GetList", "Students")/',
+                    "type": "GET",
+                    "datatype": "json",
+                    cache: false,
+                },
+                "columns": [
+                    { "data": "Id" },
+                    { "data": "Name" },
+                    { "data": "Gender" },
+                    { "data": "Age" },
+                    { "data": "StandardName" },
+                    { "data": "MobileNo" },
+                    { "data": "Email" },
+                    {
+                        "data": "DateOfBirth",
+                        "render": function (data) {
+                            return moment(data).format('DD-MM-YYYY');
+                        }
+                    },
+                     {
+                        "data": "Id", "render": function (data) {
+                             return "<button class='btn btn-primary btn-sm'onclick ='Edit("+ data +")'> Edit</button> "
+                        },
+                        "orderable": false,
+                        "width":"90px"
+                    },
+                      {
+                        "data": "Id", "render": function (data) {
+                            return "<a class='btn btn-danger btn-sm'style='margin.left:5px' onclick =Delete("+ data +")> Delete</s> "
+                        },
+                        "orderable": false,
+                        "width": "90px"
+                    }
+
+                ]
+
+            });
+        });
+
+        function AddData() {
+            debugger;
+            $('#txtid').val('');
+            $('#StdName').val('');
+            $('#StdAge').val('');
+            $('#StdGender').prop('checked', false);
+            $('#ssStdGender').prop('checked', false);
+            $('#StandardId').val('');
+            $('#StdMobileNo').val('');
+            $('#StdEmail').val('');
+            $('#StdDateOfBirth').val('');
+            $('#CountryCodeId').val('');
+            $('.text-danger').empty();
+            $("#PopupForm").modal('show');
+        }
+
+        function Edit(id) {
+            debugger;
+            $('.text-danger').empty();
+            $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("Edit", "Students")/' + id,
+                    success: function (data) {
+                    $('#txtid').val(data.data.Id);
+                    $('#StdName').val(data.data.Name);
+                    $('#StdAge').val(data.data.Age);                  
+                    $('input[name="Gender"]').filter('[value="' + data.data.Gender + '"]').prop('checked', true);
+                    $('#StandardId').val(data.data.StandardId);
+                     var mob = data.data.MobileNo.substr(3,13)
+                     $('#StdMobileNo').val(mob);
+                    $('#StdEmail').val(data.data.Email);
+                    $('#StdDateOfBirth').val(moment(data.data.DateOfBirth).format('YYYY-MM-DD'));
+                    $('#CountryCodeId').val(data.data.CountryCodeId);
+                    $("#PopupForm").modal('show');
+                    }
+                    })
+                    }
+
+        function SubmitData() {
+            debugger;
+            var form = $('#FormId');
+                if (form.valid()) {
+                      var Data = $('#FormId').serialize();
+            if (Data == null) {
+                return false;
+            }
+            $.ajax({
+                    type: "POST",
+                     url: '@Url.Action("Create", "Students")',
+                    data: Data,
+                   cache:false,
+                success: function (data) {
+                            if (data.success) {
+                                datatable.ajax.reload();
+
+                                $.notify(data.message, {
+                                    globalPosition: "top center",
+                                    ClassName: "success"
+                                })
+                                $("#PopupForm").modal('hide');
+                    }
+                    },
+                error: function (data) {
+                    alert(data.responseText);
+
+                }
+            });
+                };
+        };
+
+        $("#StdDateOfBirth").change(function () {
+            var dob = moment($(this).val(), 'YYYY-MM-DD');
+            var currentDate = new Date(dob);
+            var d = currentDate.getFullYear();
+            var currentyear = new Date().getFullYear();
+            var age = currentyear - d;
+            $('#StdAge').val(age);
+        });
+        function Delete(id) {
+                    if (confirm("Are You Sure to Delete this Student Record?")) {
+                    $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("Delete", "Students")/' + id,
+                    success: function (data) {
+                    if (data.success) {
+                        datatable.ajax.reload();
+
+                    $.notify(data.message, {
+                    globalPosition: "top center",
+                    ClassName: "success"
+                    })
+                    }
+                    }
+                    })
+                    }
+        }
+
+    </script>
+
+
+
+}
