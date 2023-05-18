@@ -50,7 +50,7 @@ namespace Trial.Controllers
         public ActionResult Edit(int id)
         {
             var std = _standardService.GetStandardById(id);
-            return Json(new { data = std, message = "Saved Successfully" }, JsonRequestBehavior.AllowGet);
+            return Json(new { data = std}, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]

@@ -56,7 +56,7 @@ namespace Trial.Controllers
         public ActionResult Edit(int id)
         {
             var dept = _departmentService.GetDepartmentById(id);
-            return Json(new { data = dept, message = "Saved Successfully" }, JsonRequestBehavior.AllowGet);
+            return Json(new { data = dept}, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]

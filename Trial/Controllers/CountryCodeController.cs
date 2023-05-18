@@ -50,7 +50,7 @@ namespace Trial.Controllers
         public ActionResult Edit(int id)
         {
             var countrycode = _countryCodeService.GetCountryCodeById(id);
-            return Json(new { data = countrycode, message = "Saved Successfully" }, JsonRequestBehavior.AllowGet);
+            return Json(new { data = countrycode}, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
